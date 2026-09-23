@@ -308,7 +308,7 @@ while True:
                 elif is_smiling:
                     expression_label = "😊 Smiling!"
                 else:
-                    expression_label = "😐 Neutral Face"
+                    expression_label = "👀 Eyes Open"
 
                 # --- Extract 5pt for alignment ---
                 kps_5pt = get_5pt_from_lm(lm, roi_W, roi_H)
@@ -349,6 +349,16 @@ while True:
 
             cv2.putText(vis, f"Servo: {last_angle} deg", (10, 70),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 0), 2)
+
+            if face_center_x < frame_center_x - DEAD_ZONE_PX:
+                direction_text = "<- Face Left"
+            elif face_center_x > frame_center_x + DEAD_ZONE_PX:
+                direction_text = "Face Right ->"
+            else:
+                direction_text = "- Centered -"
+                
+            cv2.putText(vis, direction_text, (FRAME_WIDTH - 240, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
 
             # Draw a solid lock indicator ring around the box
             cv2.rectangle(vis, (x - 4, y - 4), (x + w + 4, y + h + 4), (0, 255, 0), 1)
@@ -408,6 +418,8 @@ while True:
             expr_color = (255, 150, 0)
         elif expression_label == "😊 Smiling!":
             expr_color = (0, 255, 128)
+        elif expression_label == "👀 Eyes Open":
+            expr_color = (0, 200, 255)
         else:
             expr_color = (200, 200, 200)
         cv2.putText(vis, expression_label,           (10, 140), cv2.FONT_HERSHEY_SIMPLEX, 0.75, expr_color, 2)
